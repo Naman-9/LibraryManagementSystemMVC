@@ -1,8 +1,10 @@
 package library.controller;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import library.model.Book;
 import library.service.LibraryService;
 import library.view.LibraryView;
 
@@ -30,6 +32,10 @@ public class LibraryController {
                 case 4 -> handleDeleteBook();
                 case 5 -> handleIssueBook();
                 case 6 -> handleReturnBook();
+                case 7 -> showResults(service.searchById(view.getInput(("Enter Id: "))));
+                case 8 -> showResults(service.searchByTitle(view.getInput("Enter Title: ")));
+                case 9 -> showResults(service.searchByAuthor(view.getInput("Enter Author: ")));
+                case 10 -> showResults(service.searchByTag(view.getInput("Enter Tag: ")));
                 case 0 -> {
                     running = false;
                     view.displayMessage("Exit....");
@@ -107,6 +113,14 @@ public class LibraryController {
             view.displayMessage("Book returned.");
         } catch (IllegalArgumentException | IllegalStateException e) {
             view.displayMessage(e.getMessage());
+        }
+    }
+
+    private void showResults(List<Book> results){
+        if(results.isEmpty()){
+            view.displayMessage("No Book Found.");
+        } else {
+            view.displayBookList(results);
         }
     }
 }
