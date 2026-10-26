@@ -136,4 +136,11 @@ public void updateAuthor(String author) {
         }
         issuedTo = null;
     }
+
+    public boolean hasTag(String tag){
+        if(tag == null || tag.isBlank()){
+            return false;
+        }
+        return tags.contains(tag.trim().toLowerCase());
+    }
 }
