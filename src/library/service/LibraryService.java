@@ -76,4 +76,17 @@ public class LibraryService {
     public List<Book> getAllBooks() {
         return new ArrayList<>(books);
     }
+
+    public void loadDemoData() {
+    addBook("Clean Code", "Robert C. Martin", Set.of("Programming", "Java", "Software"));
+    addBook("Effective Java", "Joshua Bloch", Set.of("Java", "Programming", "OOP"));
+    addBook("Head First Java", "Kathy Sierra", Set.of("Java", "Beginner", "Programming"));
+    addBook("The Pragmatic Programmer", "Andrew Hunt", Set.of("Programming", "Software", "Career"));
+    addBook("Design Patterns", "Erich Gamma", Set.of("OOP", "Design", "Programming"));
+    addBook("Introduction to Algorithms", "Thomas H. Cormen", Set.of("Algorithms", "DSA", "Computer Science"));
+    addBook("Java: The Complete Reference", "Herbert Schildt", Set.of("Java", "Programming", "Reference"));
+    addBook("Don't Make Me Think", "Steve Krug", Set.of("Design", "UX", "Web"));
+    addBook("The Clean Coder", "Robert C. Martin", Set.of("Programming", "Software", "Career"));
+    addBook("Refactoring", "Martin Fowler", Set.of("Programming", "Java", "Software"));
+}
 }

@@ -9,6 +9,11 @@ public class LibraryView {
 
     private final Scanner scanner = new Scanner(System.in);
 
+    public String getInput(String input) {
+        System.out.print(input);
+        return scanner.nextLine();
+    }
+
     public void displayTableHeader() {
         System.out.printf("%-10s %-25s %-20s %-25s %-20s%n",
                 "ID", "Title", "Author", "Tags", "Status");
