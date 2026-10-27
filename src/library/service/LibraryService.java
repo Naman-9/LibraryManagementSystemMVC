@@ -9,6 +9,7 @@ import library.model.Book;
 
 public class LibraryService {
 
+    // book lists available in library
     private final List<Book> books;
 
     public LibraryService() {
