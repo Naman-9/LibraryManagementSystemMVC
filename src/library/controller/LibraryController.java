@@ -88,7 +88,7 @@ public class LibraryController {
         try {
             service.deleteBook(id);
             view.displayMessage("Book deleted.");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {  
             view.displayMessage(e.getMessage());
         }
     }
