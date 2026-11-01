@@ -1,24 +1,25 @@
 package library.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import library.model.Book;
+import library.repository.BookStorage;
 
 public class LibraryService {
 
     // book lists available in library
-    private final List<Book> books;
+    // private final List<Book> books;
+    private final BookStorage storage;
 
-    public LibraryService() {
-        this.books = new ArrayList<>();
+    public LibraryService(BookStorage storage) {
+        this.storage = storage;
     }
 
     public void addBook(String title, String author, Set<String> tags) {
         Book book = new Book(title, author, tags);
-        books.add(book);
+        storage.save(book);
     }
 
     public void updateBook(String id, String title, String author) {
@@ -31,14 +32,17 @@ public class LibraryService {
         Book book = result.get();
         book.updateTitle(title);
         book.updateAuthor(author);
+        storage.save(book);   // csv files - update
     }
 
     public void deleteBook(String id) {
-        boolean removed = books.removeIf(book -> book.getId().equals(id));
+        Optional<Book> book = findById(id);
 
-        if (!removed) {
+        if (book.isEmpty()) {
             throw new IllegalArgumentException("Book not found: " + id);
         }
+        storage.delete(id);
+
     }
 
     public void issueBook(String id, String borrowerId) {
@@ -51,7 +55,7 @@ public class LibraryService {
 
         Book book = result.get();
         book.issueTo(borrowerId);
-
+        storage.save(book);
     }
 
     public void returnBook(String id) {
@@ -63,19 +67,23 @@ public class LibraryService {
 
         Book book = result.get();
         book.returnBook();
+        storage.save(book);
     }
 
     public Optional<Book> findById(String id) {
-        for (Book book : books) {
-            if (book.getId().equals(id)) {
-                return Optional.of(book);
-            }
-        }
-        return Optional.empty();
+        // for (Book book : books) {
+        //     if (book.getId().equals(id)) {
+        //         return Optional.of(book);
+        //     }
+        // }
+        // return Optional.empty();
+
+        return storage.findById(id);
     }
 
     public List<Book> getAllBooks() {
-        return new ArrayList<>(books);
+        // return new ArrayList<>(books);
+        return storage.findAll();
     }
 
     public List<Book> searchById(String id) {
@@ -86,32 +94,41 @@ public class LibraryService {
         // }
         // }
         // return result;
-        return books.stream()
+
+        
+        // return books.stream()
+        //         .filter(book -> book.getId().equalsIgnoreCase(id.trim()))
+        //         .toList();
+
+        return getAllBooks().stream()
                 .filter(book -> book.getId().equalsIgnoreCase(id.trim()))
                 .toList();
     }
 
     public List<Book> searchByTitle(String query) {
         String q = query.trim().toLowerCase();
-        return books.stream()
+        return getAllBooks().stream()
                 .filter(b -> b.getTitle().toLowerCase().contains(q))
                 .toList();
     }
 
     public List<Book> searchByAuthor(String query) {
         String q = query.trim().toLowerCase();
-        return books.stream()
+        return getAllBooks().stream()
                 .filter(b -> b.getAuthor().toLowerCase().contains(q))
                 .toList();
     }
 
     public List<Book> searchByTag(String query) {
-        return books.stream()
+        return getAllBooks().stream()
                 .filter(b -> b.hasTag(query))
                 .toList();
     }
 
     public void loadDemoData() {
+        if(!getAllBooks().isEmpty()){
+            return;
+        }
         addBook("Clean Code", "Robert C. Martin", Set.of("Programming", "Java", "Software"));
         addBook("Effective Java", "Joshua Bloch", Set.of("Java", "Programming", "OOP"));
         addBook("Head First Java", "Kathy Sierra", Set.of("Java", "Beginner", "Programming"));

@@ -13,8 +13,7 @@ public class Book {
     private static int idCounter = 1;
 
     public static String generateId() {
-        String initial = "B00";
-        return initial + idCounter++;
+        return String.format("B%04d", idCounter++);
     }
 
     public Book(String title, String author, Set<String> tags) {
@@ -41,6 +40,35 @@ public class Book {
         this.issuedTo = null;
     }
 
+    public Book(String id, String title, String author, Set<String> tags, String issuedTo) {
+
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Id cannot be blank.");
+        }
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Book title cannot be blank.");
+        }
+
+        if (author == null || author.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Book author cannot be blank.");
+        }
+
+        this.id = id;
+        Book.updateIdCounter(id);
+        this.title = title.trim();
+        this.author = author.trim();
+        this.tags = new HashSet<String>();
+        if (tags != null) {
+            for (String tag : tags) {
+                addTag(tag);
+            }
+        }
+        this.issuedTo = issuedTo;
+    }
+
     public String getId() {
         return id;
     }
@@ -63,6 +91,15 @@ public class Book {
 
     public boolean isAvailable() {
         return issuedTo == null;
+    }
+
+    private static void updateIdCounter(String existingId){
+        if(existingId == null || !existingId.matches("B\\d{4,}")){
+             throw new IllegalArgumentException("Invalid book ID: " + existingId);
+        }
+        int number = Integer.parseInt(existingId.substring(1));
+        idCounter = Math.max(idCounter, number + 1);
+        
     }
 
     public void updateTitle(String title) {
