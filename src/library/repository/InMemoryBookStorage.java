@@ -17,7 +17,7 @@ public class InMemoryBookStorage implements BookStorage {
     }
 
     public void save(Book book){
-        books.put(book.getId() , book);
+        books.put(book.getId(), book);
     }
 
     public Optional<Book> findById(String id){
