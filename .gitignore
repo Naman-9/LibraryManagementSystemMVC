@@ -1,2 +1,6 @@
 .out/
 out/
+target/src/main/resources/admin.properties
+
+target/
+src/main/resources/admin.properties

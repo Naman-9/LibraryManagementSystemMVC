@@ -1,0 +1,2 @@
+admin.id=ADMIN001
+admin.passwordHash=REPLACE_WITH_BCRYPT_HASH

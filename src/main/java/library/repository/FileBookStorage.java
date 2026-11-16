@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import library.exception.InvalidBookException;
+import library.exception.StorageException;
 import library.model.Book;
 
 public class FileBookStorage implements BookStorage {
@@ -24,20 +26,29 @@ public class FileBookStorage implements BookStorage {
     private final Path filePath;
 
     public FileBookStorage() {
+        this(Path.of("data", "books.csv"));
+    }
+
+    public FileBookStorage(Path filePath) {
+
+        if (filePath == null) {
+            throw new StorageException("Book storage file path cannot be null.");
+        }
         this.books = new HashMap<>();
-        this.filePath = Path.of("data", "books.csv"); // data directory doesn't exist- creates it IF already exists --
-                                                      // no error is thrown.
+        this.filePath = filePath;
 
         try {
-            Files.createDirectories(filePath.getParent());
-
+            if (filePath.getParent() != null) {
+                Files.createDirectories(filePath.getParent());
+            }
             if (!Files.exists(filePath)) {
                 Files.createFile(filePath);
             }
+
             loadBooks();
 
         } catch (IOException e) {
-            throw new IllegalStateException(
+            throw new StorageException(
                     "Unable to initialize book storage.", e);
         }
     }
@@ -53,7 +64,7 @@ public class FileBookStorage implements BookStorage {
 
                 String[] fields = line.split(",", -1);
                 if (fields.length != 5) {
-                    throw new IllegalStateException("Invalid book record: " + line);
+                    throw new StorageException("Invalid book record: " + line);
                 }
 
                 String id = fields[0];
@@ -74,15 +85,22 @@ public class FileBookStorage implements BookStorage {
                     tags = new HashSet<>(Arrays.asList(tagData.split("\\|")));
                 }
 
-                Book book = new Book(id, title, author, tags, issuedTo);
-                if (books.containsKey(id)) {
-                    throw new IllegalStateException("Duplicate book ID: " + id);
-                }
+                try {
+                    Book book = new Book(id, title, author, tags, issuedTo);
 
-                books.put(id, book);
+                    if (books.containsKey(id)) {
+                        throw new StorageException("Duplicate book ID: " + id);
+                    }
+
+                    books.put(id, book);
+
+                } catch (InvalidBookException e) {
+                    throw new StorageException(
+                            "Invalid book data in storage: " + line, e);
+                }
             }
         } catch (IOException e) {
-            throw new IllegalStateException(
+            throw new StorageException(
                     "Unable to load books from file.", e);
         }
 
@@ -122,7 +140,7 @@ public class FileBookStorage implements BookStorage {
             }
 
         } catch (IOException e) {
-            throw new IllegalStateException(
+            throw new StorageException(
                     "Unable to update books file.", e);
         }
 
@@ -130,8 +148,18 @@ public class FileBookStorage implements BookStorage {
 
     @Override
     public void save(Book book) {
-        books.put(book.getId(), book);
-        writeBooks();
+        Book previousBook = books.put(book.getId(), book);
+
+        try {
+            writeBooks();
+        } catch (StorageException e) {
+            if (previousBook == null) {
+                books.remove(book.getId());
+            } else {
+                books.put(book.getId(), previousBook);
+            }
+            throw e;
+        }
     }
 
     @Override
@@ -146,10 +174,16 @@ public class FileBookStorage implements BookStorage {
 
     @Override
     public void delete(String id) {
+        Book removedBook = books.remove(id);
 
-        books.remove(id);
-        writeBooks();
-
+        try {
+            writeBooks();
+        } catch (StorageException e) {
+            if (removedBook != null) {
+                books.put(id, removedBook);
+            }
+            throw e;
+        }
     }
 
 }

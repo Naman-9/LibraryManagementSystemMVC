@@ -3,6 +3,10 @@ package library.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import library.exception.BookNotIssuedException;
+import library.exception.BookUnavailableException;
+import library.exception.InvalidBookException;
+
 public class Book {
 
     private final String id; // final -> constructor cannot reassign
@@ -19,12 +23,12 @@ public class Book {
     public Book(String title, String author, Set<String> tags) {
 
         if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookException(
                     "Book title cannot be blank.");
         }
 
         if (author == null || author.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookException(
                     "Book author cannot be blank.");
         }
 
@@ -43,16 +47,16 @@ public class Book {
     public Book(String id, String title, String author, Set<String> tags, String issuedTo) {
 
         if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookException(
                     "Id cannot be blank.");
         }
         if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookException(
                     "Book title cannot be blank.");
         }
 
         if (author == null || author.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookException(
                     "Book author cannot be blank.");
         }
 
@@ -95,7 +99,7 @@ public class Book {
 
     private static void updateIdCounter(String existingId){
         if(existingId == null || !existingId.matches("B\\d{4,}")){
-             throw new IllegalArgumentException("Invalid book ID: " + existingId);
+             throw new InvalidBookException("Invalid book ID: " + existingId);
         }
         int number = Integer.parseInt(existingId.substring(1));
         idCounter = Math.max(idCounter, number + 1);
@@ -104,7 +108,7 @@ public class Book {
 
     public void updateTitle(String title) {
         if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookException(
                     "Book title cannot be blank.");
         }
 
@@ -113,7 +117,7 @@ public class Book {
 
     public void updateAuthor(String author) {
         if (author == null || author.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookException(
                     "Book author cannot be blank.");
         }
 
@@ -122,7 +126,7 @@ public class Book {
 
     public void addTag(String tag) {
         if (tag == null || tag.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookException(
                     "Tag cannot be blank.");
         }
 
@@ -131,7 +135,7 @@ public class Book {
 
     public boolean removeTag(String tag) {
         if (tag == null || tag.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookException(
                     "Tag cannot be blank.");
         }
 
@@ -140,12 +144,12 @@ public class Book {
 
     public void issueTo(String borrowerId) {
         if (borrowerId == null || borrowerId.isBlank()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookException(
                     "Borrower Id cannot be blank.");
         }
 
         if (!isAvailable()) {
-            throw new IllegalStateException(
+            throw new BookNotIssuedException(
                     "Book is already issued.");
         }
 
@@ -154,7 +158,7 @@ public class Book {
 
     public void returnBook() {
         if (isAvailable()) {
-            throw new IllegalStateException(
+            throw new BookUnavailableException(
                     "Book is not currently issued.");
         }
         issuedTo = null;
